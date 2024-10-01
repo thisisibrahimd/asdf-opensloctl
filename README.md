@@ -6,17 +6,8 @@
 
 </div>
 
-# Contents
 
-- [Dependencies](#dependencies)
-- [Install](#install)
-
-# Dependencies
-
-- `git` Ensure the git cli is available and (github cli authentication)[https://cli.github.com/manual/gh_auth_setup-git] has been setup.
-- `github cli` github cli is available (version above 2.44.1) and you are signed to the github account with access to thisisibrahimd/opensloctl repo read access, https://cli.github.com/.
-
-# Install
+## Install
 
 Plugin:
 
