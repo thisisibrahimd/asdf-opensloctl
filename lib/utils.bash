@@ -18,7 +18,6 @@ if [ -n "${GITHUB_API_TOKEN:-}" ]; then
 	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
 fi
 
-
 sort_versions() {
 	sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
 		LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
@@ -41,7 +40,7 @@ get_architecture() {
 	x86_64 | x86-64 | x64 | amd64) architecture="x86_64" ;;
 	i386 | i486 | i686 | i786 | x86) architecture="i386" ;;
 	aarch64 | arm64) architecture="arm64" ;;
-	xscale | armv6l | arm ) architecture="arm" ;;
+	xscale | armv6l | arm) architecture="arm" ;;
 	# armv7l | armv8l) architecture="armv7" ;;
 	# ppc64le) architecture="powerpc64le" ;;
 	*) fail "Unsupported architecture" ;;
@@ -76,7 +75,7 @@ download_release() {
 
 	echo "* Downloading $TOOL_NAME release $version..."
 	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
-	tar xvf $filename --directory $download_path
+	tar xvf "$filename" --directory "$download_path"
 }
 
 install_version() {
