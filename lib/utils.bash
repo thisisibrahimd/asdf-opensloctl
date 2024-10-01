@@ -2,10 +2,7 @@
 
 set -eo pipefail
 
-ORG_NAME="thisisibrahimd"
-REPO_NAME="opensloctl"
-REPO_NAME_WITH_ORG="$ORG_NAME/$REPO_NAME"
-# GH_REPO="https://github.com/$REPO_NAME_WITH_ORG"
+GH_REPO="https://github.com/thisisibrahimd/opensloctl"
 TOOL_NAME="opensloctl"
 TOOL_TEST="opensloctl --help"
 
@@ -14,18 +11,27 @@ fail() {
 	exit 1
 }
 
+curl_opts=(-fsSL)
+
+# NOTE: You might want to remove this if coder is not hosted on GitHub releases.
+if [ -n "${GITHUB_API_TOKEN:-}" ]; then
+	curl_opts=("${curl_opts[@]}" -H "Authorization: token $GITHUB_API_TOKEN")
+fi
+
+
 sort_versions() {
 	sed 'h; s/[+-]/./g; s/.p\([[:digit:]]\)/.z\1/; s/$/.z/; G; s/\n/ /' |
 		LC_ALL=C sort -t. -k 1,1 -k 2,2n -k 3,3n -k 4,4n -k 5,5n | awk '{print $2}'
 }
 
-list_github_releases() {
-	gh release list -R "$REPO_NAME_WITH_ORG" --exclude-drafts -q '.[].tagName' --json tagName |
-		sed 's/^v//'
+list_github_tags() {
+	git ls-remote --tags --refs "$GH_REPO" |
+		grep -o 'refs/tags/v.*' | cut -d/ -f3- |
+		sed 's/^v//' # NOTE: You might want to adapt this sed to remove non-version strings from tags
 }
 
 list_all_versions() {
-	list_github_releases
+	list_github_tags
 }
 
 get_architecture() {
@@ -66,12 +72,11 @@ download_release() {
 	architecture=$(get_architecture)
 	platform=$(get_platform)
 
-	echo "starting to log"
-	gh release download -R "$REPO_NAME_WITH_ORG" "v$version" --clobber -p "$TOOL_NAME\_$platform\_$architecture\.tar\.gz" -O "$filename" || fail "Could not download $TOOL_NAME@$version"
-	tar xvf $filename --directory $download_path
+	url="$GH_REPO/releases/download/v${version}/${TOOL_NAME}_${platform}_${architecture}.tar.gz"
 
-	# Assert budgetadjustment has downloaded
-	test -f "$filename" || fail "File does not exists"
+	echo "* Downloading $TOOL_NAME release $version..."
+	curl "${curl_opts[@]}" -o "$filename" -C - "$url" || fail "Could not download $url"
+	tar xvf $filename --directory $download_path
 }
 
 install_version() {
