@@ -17,7 +17,7 @@ mise plugin install opensloctl https://github.com/thisisibrahimd/asdf-opensloctl
 asdf plugin add opensloctl https://github.com/thisisibrahimd/asdf-opensloctl.git
 ```
 
-budgetadjustment:
+opensloctl:
 
 ```shell
 # Show all installable versions
